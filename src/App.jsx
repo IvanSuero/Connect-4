@@ -1,4 +1,3 @@
-import confetti from "canvas-confetti"
 import { useEffect, useState } from "react"
 import { Square } from "./components/Square"
 import { WinnerModal } from "./components/WinnerModal"
@@ -56,7 +55,6 @@ function App() {
     //Check winner or endgame
     const newWinner = checkWinner(newBoard)
     if(newWinner){
-      confetti()
       setWinner(newWinner)
     } else if(checkEndgame(board)) setWinner(false)
     saveToLocalStorage({board: newBoard, turn: newTurn})
