@@ -1,24 +1,44 @@
-//import confetti from "canvas-confetti"
-import { useState } from "react"
+import confetti from "canvas-confetti"
+import { useEffect, useState } from "react"
 import { Square } from "./components/Square"
 import { WinnerModal } from "./components/WinnerModal"
 import { TURNS } from "./constants"
 import { checkWinner, checkEndgame } from "./logic/board"
 import { Turn } from "./components/Turn"
+import { removeFromLocalStorage, saveToLocalStorage } from "./logic/localStorage"
+import { MouseFollower } from "./components/MouseFollower"
 
 function App() {
-  const [board, setBoard] = useState(Array(42).fill(null))
-  const [turn, setTurn] = useState(TURNS.X)
+  const [board, setBoard] = useState(() => {
+    const boardFromStorage = window.localStorage.getItem('board')
+    if(boardFromStorage) return JSON.parse(boardFromStorage)
+    return Array(42).fill(null)
+  })
+  const [turn, setTurn] = useState(() => {
+    const turnFromStorage = window.localStorage.getItem('turn')
+    if(turnFromStorage) return turnFromStorage
+    return TURNS.X
+  })
   const [winner, setWinner] = useState(null)
-  const [redCount, setRedCount] = useState(Array(42).fill(null))
-  const [yellowCount, setYellowCount] = useState(Array(42).fill(null))
+  const [position, setPosition] = useState({x: 0, y: 0})
+
+  useEffect(() => {
+    const handleMove = (event) => {
+      const {clientX, clientY} = event
+      setPosition({x: clientX, y: clientY})
+    }
+    window.addEventListener('pointermove', handleMove)
+
+    return () => {
+      window.removeEventListener('pointermove', handleMove)
+    }
+  }, [])
 
   const resetGame = () => {
     setBoard(Array(42).fill(null))
-    setRedCount(Array(42).fill(null))
-    setYellowCount(Array(42).fill(null))
     setTurn(TURNS.X)
     setWinner(null)
+    removeFromLocalStorage()
   }
 
   const updateBoard = (index) => {
@@ -28,17 +48,6 @@ function App() {
     const newBoard = [...board]
     newBoard[cell] = turn
     setBoard(newBoard)
-    if(turn===TURNS.X){
-      const newColorBoard = [...redCount]
-      newColorBoard[cell] = TURNS.X
-      setRedCount(newColorBoard)
-    } else{
-      const newColorBoard = [...yellowCount]
-      newColorBoard[cell] = TURNS.O
-      setYellowCount(newColorBoard)
-    }
-
-    
       
     //Change turn
     const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
@@ -47,9 +56,10 @@ function App() {
     //Check winner or endgame
     const newWinner = checkWinner(newBoard)
     if(newWinner){
-      //confetti()
+      confetti()
       setWinner(newWinner)
     } else if(checkEndgame(board)) setWinner(false)
+    saveToLocalStorage({board: newBoard, turn: newTurn})
   }
 
   const getCell = (col) => {
@@ -75,19 +85,9 @@ function App() {
                 <section className="game">
                 {
                   board.map((square, index) => {
-                    if(yellowCount[index]!=null){
-                      return (
-                        <Square updateBoard={updateBoard} color={TURNS.O} index={index} key={index}>{square}</Square>
-                      )
-                    } else if(redCount[index]!=null){
-                      return(
-                        <Square updateBoard={updateBoard} color={TURNS.X} index={index} key={index}>{square}</Square>
-                      )
-                    }  
                     return(
-                      <Square updateBoard={updateBoard} color={null} index={index} key={index}>{square}</Square>
+                      <Square updateBoard={updateBoard} color={square} index={index} key={index}>{square}</Square>
                     )
-                    
                   })
                 }
                 </section>
@@ -105,6 +105,8 @@ function App() {
       </table>
       
       <WinnerModal resetGame={resetGame} winner={winner} />
+
+      <MouseFollower position={position} />
     </main>
   )
 }

@@ -143,6 +143,7 @@ h2.active-yellow{
   height: 50px;
   border-radius: 50%;
   border: 2px solid black;
+  box-shadow: inset 0px 4px 1px 0px black;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -153,10 +154,12 @@ h2.active-yellow{
 
 .square.yellow{
   background-color: yellow;
+  box-shadow: inset 0px 4px 3px 0px black;
 }
 
 .square.red{
   background-color: red;
+  box-shadow: inset 0px 4px 3px 0px black;
 }
 
 .no-status, .status{
