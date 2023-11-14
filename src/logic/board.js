@@ -2,8 +2,11 @@ import { WINNER_COMBOS } from "../constants"
 
 export const checkEndgame = (board) => {
     for(let i=0; i<42; i++){
-      if(board[i]===null) return false
+      if(board[i]===null) {
+        return false
+      }
     }
+    return true
   }
 
 export const checkWinner = (board) => {

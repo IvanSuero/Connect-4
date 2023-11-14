@@ -56,7 +56,7 @@ function App() {
     const newWinner = checkWinner(newBoard)
     if(newWinner){
       setWinner(newWinner)
-    } else if(checkEndgame(board)) setWinner(false)
+    } else if(checkEndgame(newBoard)) setWinner(false)
     saveToLocalStorage({board: newBoard, turn: newTurn})
   }
 
